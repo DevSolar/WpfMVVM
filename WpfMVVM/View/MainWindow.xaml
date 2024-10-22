@@ -1,4 +1,8 @@
-﻿<Window x:Class="WpfMVVM.MainWindow"
+﻿<!-- This is the View - the layout of MainWindow.             -->
+<!-- Note that the XAML here contains no logic. All it does   -->
+<!-- is stating what is where, and what part of the ViewModel -->
+<!-- each GUI element is bound to.                            --> 
+<Window x:Class="WpfMVVM.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,23 +11,34 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <!-- A Grid (stacking vertically by default), with two rows, the -->
+        <!-- first with static size, the second dynamically resizing.    -->
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
+        <!-- The contents of the first row - a (horizontal) stack of centered elements. -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <!-- Three buttons, each bound to the RelayCommand (see MVVM/RelayCommand)  -->
+            <!-- defined for it by the ViewModel.                                       -->
             <Button Content="Add" Command="{Binding AddCommand}"/>
             <Button Content="Delete" Command="{Binding DeleteCommand}"/>
             <Button Content="Save" Command="{Binding SaveCommand}"/>
         </StackPanel>
 
+        <!-- The contents of the second row - a sub-Grid -->
         <Grid Grid.Row="1">
+            <!-- Sub-Grid with two columns, one a bit over twice as wide as the other -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="7*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
 
+            <!-- The left column of the sub-Grid: A DataGrid to display the data items.     -->
+            <!-- ItemsSource is bound to the ObservableCollection Items in the ViewModel.   -->
+            <!-- One of them can be selected (by the GUI, or by the code in the ViewModel), -->
+            <!-- and the two components would signal each other about the selection.        -->
             <DataGrid
                 ItemsSource="{Binding Items}"
                 SelectedItem="{Binding SelectedItem}"
@@ -31,13 +46,22 @@
                 CanUserDeleteRows="False"
                 AutoGenerateColumns="False">
                 <DataGrid.Columns>
+                    <!-- This is a bit "magic". Since the DataGrid is bound to a collection, -->
+                    <!-- the individual rows of the DataGrid are bound to elements of that   -->
+                    <!-- collection. So the individual columns can be bound to data members  -->
+                    <!-- of a single element of the collection, without the single element   -->
+                    <!-- being mentioned anywhere. Very implicit.                            -->
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="4*" />
                     <DataGridTextColumn Header="SerialNumber" Binding="{Binding SerialNumber}" Width="4*" />
                     <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" Width="2*" />
                 </DataGrid.Columns>
             </DataGrid>
 
-
+            <!-- The right column of the sub-Grid: Three (labeled) TextBoxes showing the -->
+            <!-- values of the SelectedItem, and allowing the user to edit them.         -->
+            <!-- The UpdateSourceTrigger makes the DataGrid reflect changes immediately, -->
+            <!-- not just when e.g. the TextBox loses focus. That way, we don't need a   -->
+            <!-- "SaveItem" button.                                                      -->
             <StackPanel Grid.Column="1">
                 <Label Content="Name" />
                 <TextBox Text="{Binding SelectedItem.Name, UpdateSourceTrigger=PropertyChanged}"/>
